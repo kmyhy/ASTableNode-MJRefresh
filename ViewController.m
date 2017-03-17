@@ -143,7 +143,17 @@
     });
     
 }
+-(void)removeAllRowsInTableNode:(NSArray*)array{
 
+    NSMutableArray *indexPaths = [NSMutableArray array];
+    for (NSUInteger row = 0; row < _models.count; row++) {
+        NSIndexPath *path = [NSIndexPath indexPathForRow:row inSection:0];
+        [indexPaths addObject:path];
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_tableNode deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+    });
+}
 // MARK: - 上拉加载/下拉刷新
 
 -(void) addMJ{
@@ -151,13 +161,16 @@
     __weak __typeof(self) weakSelf= self;
     self.tableNode.view.mj_header=[MJRefreshNormalHeader headerWithRefreshingBlock:^{
         [_tableNode.view.mj_header endRefreshing];
+        
+        currentPage = 0;
+        [_models removeAllObjects];
         if(![self hasMoreData]){// 无数据显示
             self.tableNode.view.mj_footer.state = MJRefreshStateNoMoreData;
         }else{
-            currentPage = 0;
             
-            [_models removeAllObjects];
+//            [weakSelf removeAllRowsInTableNode:_models];
 //            [_models addObjectsFromArray:[self loadNextBatchData]];//这句不需要 ASDK 会自己加载第一页
+            
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.tableNode reloadData];
             });
