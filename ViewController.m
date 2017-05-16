@@ -15,12 +15,13 @@
 
 
 @interface ViewController ()<ASTableDelegate,ASTableDataSource>{
-    NSInteger currentPage;
-    NSInteger pageSize;
-    NSInteger maxRows;
+
 }
 @property(strong,nonatomic)ASTableNode* tableNode;
 @property(strong,nonatomic)NSMutableArray* models;
+@property (nonatomic, assign) int pageNum;
+@property (nonatomic, assign) int currentPage;
+@property (nonatomic, assign) int maxRows;
 @end
 
 @implementation ViewController
@@ -160,12 +161,12 @@
     
     __weak __typeof(self) weakSelf= self;
     self.tableNode.view.mj_header=[MJRefreshNormalHeader headerWithRefreshingBlock:^{
-        [_tableNode.view.mj_header endRefreshing];
+        [weakSelf.tableNode.view.mj_header endRefreshing];
         
-        currentPage = 0;
-        [_models removeAllObjects];
-        if(![self hasMoreData]){// 无数据显示
-            self.tableNode.view.mj_footer.state = MJRefreshStateNoMoreData;
+        weakSelf.currentPage = 0;
+        [weakSelf.models removeAllObjects];
+        if(![weakSelf hasMoreData]){// 无数据显示
+            weakSelf.tableNode.view.mj_footer.state = MJRefreshStateNoMoreData;
         }else{
             
 //            [weakSelf removeAllRowsInTableNode:_models];
@@ -179,11 +180,11 @@
     
    self.tableNode.view.mj_footer=[MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
        
-       if(![self hasMoreData]){// 无数据显示
-           self.tableNode.view.mj_footer.state = MJRefreshStateNoMoreData;
+       if(![weakSelf hasMoreData]){// 无数据显示
+           weakSelf.tableNode.view.mj_footer.state = MJRefreshStateNoMoreData;
            NSLog(@"no more data");
        }else{
-           [self.tableNode.view.mj_footer endRefreshing];
+           [weakSelf.tableNode.view.mj_footer endRefreshing];
        }
        
     }];
